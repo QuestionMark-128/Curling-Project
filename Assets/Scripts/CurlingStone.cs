@@ -11,6 +11,11 @@ public class CurlingStone : MonoBehaviour
     private float desired_acceleration_x;
     private float desired_acceleration_y;
 
+    // throw data
+    private float magnitude;
+    private Vector2 direction;
+    private float curl; // positive for right, negative for left
+    
     void Start()
     {
 
