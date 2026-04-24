@@ -3,9 +3,14 @@ using UnityEngine.InputSystem;
 using TMPro;
 using Unity.VisualScripting;
 using System;
+using UnityEngine.UIElements;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 public class CurlingStone : MonoBehaviour
 {
+    // UI
+
+    private TextMeshProUGUI statslbl;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private const float MAX_FRICTION = 0.5f;
     private const float MIN_POWER = 5f;
@@ -39,6 +44,10 @@ public class CurlingStone : MonoBehaviour
     public Material blueTopMaterial;
     public MeshRenderer topMesh;
     public MeshRenderer handleMesh;
+
+    int stop_timer = 0;
+    bool inScoreZone = false;
+    Vector3 button_position;
 
     void Awake()
     {
@@ -75,13 +84,13 @@ public class CurlingStone : MonoBehaviour
         desired_acceleration_x = 0;
         desired_acceleration_y = 0;  
 
-        stopped = true; // so that the update logic doesn't do anything unpredicted
+        stopped = true;
     }
 
 
     public void AimingPhase() // called every frame during the Aiming game phase
     {
-
+        
         // add logic for moving the mouse and adjusting the parameters
         // x is length, z is width
         //Debug.Log("Stone Aiming");
@@ -120,17 +129,26 @@ public class CurlingStone : MonoBehaviour
     }
 
     public void SweepingPhase() // called every frame during the Sweeping game phase
-    {
-        if (rb.linearVelocity.magnitude < 0.01f && !stopped)
+    {   
+        if (stop_timer < 1000)
+        {
+            stop_timer++;
+        }
+        if (rb.linearVelocity.magnitude < 0.01f && !stopped && stop_timer >= 1000)
         {
             stopped = true;
-            gameManager.OnStoneStopped(); // 
+            gameManager.OnStoneStopped(inScoreZone, button_position); // 
+            isThrown = false;
         }
     }
 
     // Update is called once per frame
     void Update() // There might be things that are always updated?
-    {   }
+    {
+        statslbl.text = string.Format("Magnitude: " + magnitude + ", Curl: " + curl + ", Direction (y): " + direction.y +
+        "\nStopped: " + stopped + ", Thrown: " + isThrown + "\nx: " + transform.position.x + ", y: " + transform.position.y);
+
+    }
     
     public void Throw()
     {
@@ -142,6 +160,8 @@ public class CurlingStone : MonoBehaviour
         Vector3 curlDir = new Vector3(0,curl,0);
         rb.AddForce(moveDir * magnitude, ForceMode.Impulse);
         rb.AddTorque(curlDir, ForceMode.Impulse);
+        stopped = false;
+        stop_timer = 0;
     }
 
     public void Initialize(Team t, GameManager g)
@@ -164,7 +184,33 @@ public class CurlingStone : MonoBehaviour
         desired_acceleration_x = movement.x;
         desired_acceleration_y = movement.y;
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("NearButton") && team == Team.Blue)
+        {
+            inScoreZone = true;
+            button_position = other.transform.position;
+
+        }
+        else if (other.CompareTag("FarButton") && team == Team.Red)
+        {
+            inScoreZone = true;
+            button_position = other.transform.position;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("NearButton") && team == Team.Blue)
+        {
+            inScoreZone = false;
+        }
+        else if (other.CompareTag("FarButton") && team == Team.Red)
+        {
+            inScoreZone = false;
+        }
+    }
+
     public void SetIceFriction(float f) {
         baseCollider.material.dynamicFriction = f; // should obviously be changed later
         baseCollider.material.staticFriction = f;
@@ -176,6 +222,11 @@ public class CurlingStone : MonoBehaviour
     public Team getTeam()
     {
         return team;
+    }
+
+    public void setText(TextMeshProUGUI t)
+    {
+        statslbl = t;
     }
     
 }

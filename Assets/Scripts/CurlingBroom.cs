@@ -22,8 +22,9 @@ public class CurlingBroom : MonoBehaviour
         //Debug.Log("Broom Aiming");
         if (!hidden)
         {
-            transform.position = new Vector3(transform.position.x + 5f, transform.position.y, transform.position.z);
             hidden = true;
+            GetComponent<MeshRenderer>().enabled = false;
+            GetComponent<BoxCollider>().enabled = false;
         }
         
         
@@ -38,10 +39,21 @@ public class CurlingBroom : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, iceLayerMask))
         {
             transform.position = hit.point + Vector3.up * 0.25f;
+            if (hidden)
+            {
+                hidden = false;
+                GetComponent<MeshRenderer>().enabled = true;
+                GetComponent<BoxCollider>().enabled = true;
+            }
         }
         else
         {
-            // move it somewhere that can't be seen
+            if (!hidden)
+            {
+                hidden = true;
+                GetComponent<MeshRenderer>().enabled = false;
+                GetComponent<BoxCollider>().enabled = false;
+            }
             
         }
     }

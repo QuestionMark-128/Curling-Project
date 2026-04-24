@@ -1,5 +1,8 @@
 using UnityEngine;
-
+using TMPro;
+using System.Collections.Generic;
+using System;
+using System.Linq;
 public class GameManager : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -15,6 +18,10 @@ public class GameManager : MonoBehaviour
     private int roundNumber;
     private int stonesThrown;
 
+    private int RedScore;
+    private int BlueScore;
+
+
     // Object references 
 
     [SerializeField] private CurlingStone stone_prefab;
@@ -22,8 +29,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform spawnPoint_2;
     [SerializeField] private CurlingBroom broom_prefab;
     [SerializeField] private FollowCamera followCamera;
+    [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private TextMeshProUGUI scoredata;
  
-
+    private List<CurlingStone> stones = new List<CurlingStone>();
+    private List<float> distances = new List<float>();
     private CurlingStone stone;
     private CurlingBroom broom;
 
@@ -63,6 +73,17 @@ public class GameManager : MonoBehaviour
 
     public void Update()
     {
+        string currteam;
+        if (stonesThrown < 4)
+        {
+            currteam = "Red";
+        }
+        else
+        {
+            currteam = "Blue";
+        }
+        scoredata.text = string.Format("Round: " + roundNumber + ", Current Team: " + currteam + 
+        ", Stones thrown: " + stonesThrown); // stones thrown, round number, current team
         switch(currentPhase)
         {
             case GamePhase.Aiming:
@@ -89,6 +110,40 @@ public class GameManager : MonoBehaviour
                 spawnPoint = spawnPoint_2;
                 roundNumber++;
 
+                stonesThrown = 0;
+
+                float lowest = Mathf.Infinity;
+                int winning_index = 0;
+                Team winners;
+                for (int i = 0; i < 8; i++)
+                {
+                    if (distances[i] < lowest)
+                    {
+                        lowest = distances[i];
+                        winning_index = i;
+                    }
+                }
+                winners = stones[winning_index].getTeam();
+
+                if (winners == Team.Red)
+                {
+                    RedScore++;
+                }
+                else if (winners == Team.Blue)
+                {
+                    BlueScore++;
+                }
+
+                distances.Clear();
+                foreach (CurlingStone s in stones)
+                {
+                    Destroy(s.gameObject);
+                }
+                stones.Clear();
+
+                currentPhase = GamePhase.Aiming;
+                SpawnStone();
+
             break;
         }
     }
@@ -106,29 +161,44 @@ public class GameManager : MonoBehaviour
         {
             stone.Initialize(Team.Blue, this); // add logic eventually
         }
-        broom = Instantiate(broom_prefab, spawnPoint.position, spawnPoint.rotation);
+        if (!broom)
+        {
+            broom = Instantiate(broom_prefab, spawnPoint.position, spawnPoint.rotation);
+        }
+        
         broom.SetStone(stone);
-        followCamera.setTarget(stone.transform, stone.getTeam());
+        followCamera.setTarget(stone.transform, roundNumber);
+        stone.setText(text);
         
     }
 
-    public void OnStoneStopped() // will be called in the stone's SweepingPhase method when stone stops
+    public void OnStoneStopped(bool inScoreZone, Vector3 button_position) // will be called in the stone's SweepingPhase method when stone stops
     {   // no need to pass a stone, the game manager already owns it
-        stonesThrown++;
-
-        // check the stone's team
-        // add stone to correct list
-
-        if (stonesThrown == 4)
+        
+        currentPhase = GamePhase.Aiming;
+        if (inScoreZone)
         {
-            // change teams
-            
+            stonesThrown++; // only if we have entered the scoring zone
         }
-        else if (stonesThrown == 8)
+        else
         {
-            // score and new round
+            return;
+        }
+        
+        float dist = Vector3.Distance(stone.transform.position, button_position);
+        distances.Add(dist);
+        //Destroy(broom);
+        stones.Add(stone);
+        stone = null;
+        
+        if (stonesThrown >= 8)
+        {
             currentPhase = GamePhase.Scoring; // This might be bad practice to put here
+            return;
         }
+        
+        SpawnStone();
+    
     }
 
     public CurlingStone getActiveStone()

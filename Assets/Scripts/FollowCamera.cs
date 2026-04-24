@@ -20,15 +20,15 @@ public class FollowCamera : MonoBehaviour
         transform.position = target.position + offset;
     }
 
-    public void setTarget(Transform t, Team team)
+    public void setTarget(Transform t, int r)
     {
-        if (team == Team.Red)
+        if (r < 4)
         {
-            offset = new Vector3(2, 1, 0); // 2 behind, one above, and in line
+            offset = new Vector3(2, 1.5f, 0); // 2 behind, one above, and in line
         }
-        else if (team == Team.Blue)
+        else 
         {
-            offset = new Vector3(-2, 1, 0); // 2 behind, one above, and in line
+           offset = new Vector3(-2, 1.5f, 0); // 2 behind, one above, and in line
         }
         target = t;
     }
