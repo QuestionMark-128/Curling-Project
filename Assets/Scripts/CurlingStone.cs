@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using Unity.VisualScripting;
+using System;
 
 public class CurlingStone : MonoBehaviour
 {
@@ -18,9 +19,19 @@ public class CurlingStone : MonoBehaviour
     private float curl; // positive for right, negative for left
 
     // data for the game manager
+    
     private bool stopped; // flag for when the stone has stopped moving
-    private bool team; // true for team 1, false for team 2
+    private Team team; // true for team 1, false for team 2
     [SerializeField] private GameManager gameManager;
+
+    // Mesh info
+
+    public Material[] redHandleMaterials;
+    public Material[] blueHandleMaterials;
+    public Material redTopMaterial;
+    public Material blueTopMaterial;
+    public MeshRenderer topMesh;
+    public MeshRenderer handleMesh;
 
     
     void Start()
@@ -72,6 +83,20 @@ public class CurlingStone : MonoBehaviour
         }
     }
 
+    public void Initialize(Team t)
+    {
+        team = t;
+        if (team == Team.Red)
+        {
+            topMesh.material = redTopMaterial;
+            handleMesh.materials = redHandleMaterials;
+        }
+        else if (team == Team.Blue)
+        {
+            topMesh.material = blueTopMaterial;
+            handleMesh.materials = blueHandleMaterials;
+        }
+    }
     void OnMove(InputValue action) {
         var movement = action.Get<Vector2>();
         desired_acceleration_x = movement.x;
