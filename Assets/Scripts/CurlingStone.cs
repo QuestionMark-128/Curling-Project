@@ -8,6 +8,8 @@ public class CurlingStone : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private const float MAX_FRICTION = 0.5f;
+    private const float MIN_POWER = 5f;
+    private const float MAX_POWER = 100f;
     private Collider baseCollider;
     private Collider bodyCollider;
     private float desired_acceleration_x;
@@ -21,12 +23,13 @@ public class CurlingStone : MonoBehaviour
     // data for the game manager
     
     private bool stopped; // flag for when the stone has stopped moving
-    private Team team; // true for team 1, false for team 2
-    [SerializeField] private GameManager gameManager;
+    private Team team; // mostly used by the curling sheet for scoring
+    private GameManager gameManager;
 
     [SerializeField] private Rigidbody rb;
 
     private bool isThrown = false;
+    private bool isCharging = false;
 
     // Mesh info
 
@@ -37,10 +40,14 @@ public class CurlingStone : MonoBehaviour
     public MeshRenderer topMesh;
     public MeshRenderer handleMesh;
 
-    
+    void Awake()
+    {
+        //rb = GetComponent<Rigidbody>();
+
+    }
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        
 
         Collider[] colliders = GetComponentsInChildren<Collider>();
 
@@ -74,9 +81,41 @@ public class CurlingStone : MonoBehaviour
 
     public void AimingPhase() // called every frame during the Aiming game phase
     {
+
+        // add logic for moving the mouse and adjusting the parameters
+        // x is length, z is width
+        //Debug.Log("Stone Aiming");
+        // AIMING 
+        direction.x = -1f; 
+        direction.y = (Mouse.current.position.x.value - Screen.width / 2) / 1500;
+
+        // CURLING
+        if (Keyboard.current.qKey.isPressed)
+        {
+            curl -= 0.01f;
+        }
+        else if (Keyboard.current.eKey.isPressed)
+        {
+            curl += 0.01f;
+        }
+
+        // CHARGING
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
-            Throw(new Vector2(0, 1), 10f);
+            isCharging = true;
+            magnitude = MIN_POWER;
+        }
+        if (isCharging && Keyboard.current.spaceKey.isPressed)
+        {
+            magnitude += Time.deltaTime * 20f;
+            magnitude = Mathf.Clamp(magnitude, MIN_POWER, MAX_POWER);
+        }
+        if (Keyboard.current.spaceKey.wasReleasedThisFrame)
+        {
+            isCharging = false;
+         
+            Debug.Log("Magnitude: " + magnitude + ", Curl: " + curl + ", Direction (y): " + direction.y);
+            Throw();
         }
     }
 
@@ -85,7 +124,7 @@ public class CurlingStone : MonoBehaviour
         if (rb.linearVelocity.magnitude < 0.01f && !stopped)
         {
             stopped = true;
-            gameManager.OnStoneStopped(this);
+            gameManager.OnStoneStopped(); // 
         }
     }
 
@@ -93,29 +132,22 @@ public class CurlingStone : MonoBehaviour
     void Update() // There might be things that are always updated?
     {   }
     
-    public void Throw(Vector2 direction, float power)
+    public void Throw()
     {
         if (isThrown) return;
 
         isThrown = true;
 
-        Vector3 forward = Camera.main.transform.forward;
-        Vector3 right = Camera.main.transform.right;
-
-        forward.y = 0;
-        right.y = 0;
-
-        forward.Normalize();
-        right.Normalize();
-
-        Vector3 moveDir = forward * direction.y + right * direction.x;
-
-        rb.AddForce(moveDir * power, ForceMode.Impulse);
+        Vector3 moveDir = new Vector3(direction.x, 0, direction.y);
+        Vector3 curlDir = new Vector3(0,curl,0);
+        rb.AddForce(moveDir * magnitude, ForceMode.Impulse);
+        rb.AddTorque(curlDir, ForceMode.Impulse);
     }
 
-    public void Initialize(Team t)
+    public void Initialize(Team t, GameManager g)
     {
         team = t;
+        gameManager = g;
         if (team == Team.Red)
         {
             topMesh.material = redTopMaterial;
@@ -137,5 +169,13 @@ public class CurlingStone : MonoBehaviour
         baseCollider.material.dynamicFriction = f; // should obviously be changed later
         baseCollider.material.staticFriction = f;
     }
-
+    public bool getIsThrown()
+    {
+        return isThrown;
+    }
+    public Team getTeam()
+    {
+        return team;
+    }
+    
 }

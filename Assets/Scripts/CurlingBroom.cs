@@ -8,15 +8,25 @@ public class CurlingBroom : MonoBehaviour
     [SerializeField] private LayerMask iceLayerMask;
     private Camera stoneCamera;
     private CurlingStone stone;
+
+    private bool hidden = false;
     void Start()
     {
-        
+
     }
 
 
     public void AimingPhase()
     {
         // put it somewhere that can't be seen
+        //Debug.Log("Broom Aiming");
+        if (!hidden)
+        {
+            transform.position = new Vector3(transform.position.x + 5f, transform.position.y, transform.position.z);
+            hidden = true;
+        }
+        
+        
     }
 
     public void SweepingPhase()

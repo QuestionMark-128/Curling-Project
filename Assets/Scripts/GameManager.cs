@@ -17,10 +17,13 @@ public class GameManager : MonoBehaviour
 
     // Object references 
 
-    [SerializeField] private CurlingStone stone;
+    [SerializeField] private CurlingStone stone_prefab;
     [SerializeField] private Transform spawnPoint_1;
     [SerializeField] private Transform spawnPoint_2;
-    [SerializeField] private CurlingBroom broom;
+    [SerializeField] private CurlingBroom broom_prefab;
+
+    private CurlingStone stone;
+    private CurlingBroom broom;
 
     private Transform spawnPoint;
 
@@ -35,7 +38,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -48,6 +51,9 @@ public class GameManager : MonoBehaviour
     // MAIN GAME MANAGER FEATURES (arranged as they occur)
     void Start()
     {
+        currentPhase = GamePhase.Aiming;
+        stonesThrown = 0;
+        roundNumber = 0;
         spawnPoint = spawnPoint_1;
         SpawnStone();
 
@@ -61,42 +67,50 @@ public class GameManager : MonoBehaviour
 
                 stone.AimingPhase();
                 broom.AimingPhase();
+                
 
+                if (stone.getIsThrown())
+                {
+                    currentPhase = GamePhase.Sweeping;
+                }
 
-                break;
+            break;
             case GamePhase.Sweeping:
 
                 stone.SweepingPhase();
                 broom.SweepingPhase();
 
-                break;
+            break;
            
             case GamePhase.Scoring:
 
+                spawnPoint = spawnPoint_2;
+                roundNumber++;
 
-
-                break;
+            break;
         }
     }
 
     private void SpawnStone()
     {
-        CurlingStone s = Instantiate(stone, spawnPoint.position, spawnPoint.rotation);
+        //Debug.Log("Stone spawned");
+        stone = Instantiate(stone_prefab, spawnPoint.position, spawnPoint.rotation);
         
         if (stonesThrown < 4)
         {
-            s.Initialize(Team.Red); // add logic eventually
+            stone.Initialize(Team.Red, this); // add logic eventually
         }
         else
         {
-            s.Initialize(Team.Blue); // add logic eventually
+            stone.Initialize(Team.Blue, this); // add logic eventually
         }
-        CurlingBroom b = Instantiate(broom, spawnPoint.position, spawnPoint.rotation);
-        b.SetStone(s);
+        broom = Instantiate(broom_prefab, spawnPoint.position, spawnPoint.rotation);
+        broom.SetStone(stone);
+        
     }
 
-    public void OnStoneStopped(CurlingStone stone) // will be called in the stone's SweepingPhase method when stone stops
-    {
+    public void OnStoneStopped() // will be called in the stone's SweepingPhase method when stone stops
+    {   // no need to pass a stone, the game manager already owns it
         stonesThrown++;
 
         // check the stone's team
@@ -110,14 +124,9 @@ public class GameManager : MonoBehaviour
         else if (stonesThrown == 8)
         {
             // score and new round
-            spawnPoint = spawnPoint_2;
-            roundNumber++;
+            currentPhase = GamePhase.Scoring; // This might be bad practice to put here
         }
     }
 
     
-    
-    
-
-   
 }
