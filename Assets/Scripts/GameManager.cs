@@ -54,12 +54,15 @@ public class GameManager : MonoBehaviour
     {
         CurlingStone s = Instantiate(stone, spawnPoint.position, spawnPoint.rotation);
         s.Initialize(Team.Red); // add logic eventually
+        CurlingBroom b = Instantiate(broom, spawnPoint.position, spawnPoint.rotation);
+        b.SetStone(s);
     }
     
     void Start()
     {
         spawnPoint = spawnPoint_1;
         SpawnStone();
+
     }
 
     // Update is called once per frame

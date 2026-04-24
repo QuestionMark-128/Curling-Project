@@ -1,8 +1,13 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CurlingBroom : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    [SerializeField] private LayerMask iceLayerMask;
+    private Camera stoneCamera;
+    private CurlingStone stone;
     void Start()
     {
         
@@ -11,6 +16,20 @@ public class CurlingBroom : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Vector2 mousePosition = Mouse.current.position.ReadValue();
+        Ray ray = stoneCamera.ScreenPointToRay(mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, iceLayerMask))
+        {
+            transform.position = hit.point + Vector3.up * 0.25f;
+        }
+
+
+
+    }
+    public void SetStone(CurlingStone s)
+    {
+        stone = s;
+        stoneCamera = stone.GetComponentInChildren<Camera>();
     }
 }

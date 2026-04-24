@@ -61,26 +61,30 @@ public class CurlingStone : MonoBehaviour
         // probably add some base value for the friction here        
 
         desired_acceleration_x = 0;
-        desired_acceleration_y = 0;    
+        desired_acceleration_y = 0;  
+
+        stopped = true; // so that the update logic doesn't do anything unpredicted
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        float dx = (Mouse.current.position.x.value - Screen.width / 2) / 1500;
+        //float dx = (Mouse.current.position.x.value - Screen.width / 2) / 1500;
 
-        if (Mathf.Abs(dx) > 0.01f) {
+        //if (Mathf.Abs(dx) > 0.01f) {
         
-            transform.Rotate(0,dx,0);
-        }
+        //    transform.Rotate(0,dx,0);
+        //}
 
         GetComponent<Rigidbody>().AddRelativeForce(desired_acceleration_x * 10, 0, desired_acceleration_y * 10);
-        if (GetComponent<Rigidbody>().linearVelocity.magnitude < 0.01f)
+        if (GetComponent<Rigidbody>().linearVelocity.magnitude < 0.01f && !stopped)
         {
             stopped = true;
             gameManager.OnStoneStopped(this);
         }
+
+        // check if stone has stopped colliding with the sheet -> call stone out of bounds method in game manager
     }
 
     public void Initialize(Team t)
