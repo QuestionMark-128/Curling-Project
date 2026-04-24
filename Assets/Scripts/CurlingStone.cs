@@ -24,6 +24,10 @@ public class CurlingStone : MonoBehaviour
     private Team team; // true for team 1, false for team 2
     [SerializeField] private GameManager gameManager;
 
+    [SerializeField] private Rigidbody rb;
+
+    private bool isThrown = false;
+
     // Mesh info
 
     public Material[] redHandleMaterials;
@@ -36,6 +40,7 @@ public class CurlingStone : MonoBehaviour
     
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
 
         Collider[] colliders = GetComponentsInChildren<Collider>();
 
@@ -77,14 +82,39 @@ public class CurlingStone : MonoBehaviour
         //    transform.Rotate(0,dx,0);
         //}
 
-        GetComponent<Rigidbody>().AddRelativeForce(desired_acceleration_x * 10, 0, desired_acceleration_y * 10);
+        
         if (GetComponent<Rigidbody>().linearVelocity.magnitude < 0.01f && !stopped)
         {
             stopped = true;
             gameManager.OnStoneStopped(this);
         }
 
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            Throw(new Vector2(0, 1), 10f);
+        }
+
         // check if stone has stopped colliding with the sheet -> call stone out of bounds method in game manager
+    }
+    
+    public void Throw(Vector2 direction, float power)
+    {
+        if (isThrown) return;
+
+        isThrown = true;
+
+        Vector3 forward = Camera.main.transform.forward;
+        Vector3 right = Camera.main.transform.right;
+
+        forward.y = 0;
+        right.y = 0;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDir = forward * direction.y + right * direction.x;
+
+        rb.AddForce(moveDir * power, ForceMode.Impulse);
     }
 
     public void Initialize(Team t)

@@ -539,7 +539,7 @@ MonoBehaviour:
   stone: {fileID: 7252251126509027963, guid: 5cb8c0eaccd0545ab8c014347ebab8a2, type: 3}
   spawnPoint_1: {fileID: 179014038}
   spawnPoint_2: {fileID: 1914085611}
-  broom: {fileID: -6892464082621596316, guid: 9e7d31c5052984bd3b652926aa589c05, type: 3}
+  broom: {fileID: 0}
 --- !u!4 &297121238
 Transform:
   m_ObjectHideFlags: 0
