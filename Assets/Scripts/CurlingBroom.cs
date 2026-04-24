@@ -6,10 +6,10 @@ public class CurlingBroom : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     [SerializeField] private LayerMask iceLayerMask;
-    private Camera stoneCamera;
     private CurlingStone stone;
 
     private bool hidden = false;
+    private bool active = false;
     void Start()
     {
 
@@ -31,8 +31,9 @@ public class CurlingBroom : MonoBehaviour
 
     public void SweepingPhase()
     {
+        
         Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Ray ray = stoneCamera.ScreenPointToRay(mousePosition);
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, iceLayerMask))
         {
@@ -41,6 +42,7 @@ public class CurlingBroom : MonoBehaviour
         else
         {
             // move it somewhere that can't be seen
+            
         }
     }
     // Update is called once per frame
@@ -49,6 +51,5 @@ public class CurlingBroom : MonoBehaviour
     public void SetStone(CurlingStone s)
     {
         stone = s;
-        stoneCamera = stone.GetComponentInChildren<Camera>();
     }
 }

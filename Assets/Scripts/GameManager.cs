@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform spawnPoint_1;
     [SerializeField] private Transform spawnPoint_2;
     [SerializeField] private CurlingBroom broom_prefab;
+    [SerializeField] private FollowCamera followCamera;
+ 
 
     private CurlingStone stone;
     private CurlingBroom broom;
@@ -106,6 +108,7 @@ public class GameManager : MonoBehaviour
         }
         broom = Instantiate(broom_prefab, spawnPoint.position, spawnPoint.rotation);
         broom.SetStone(stone);
+        followCamera.setTarget(stone.transform, stone.getTeam());
         
     }
 
@@ -126,6 +129,11 @@ public class GameManager : MonoBehaviour
             // score and new round
             currentPhase = GamePhase.Scoring; // This might be bad practice to put here
         }
+    }
+
+    public CurlingStone getActiveStone()
+    {
+        return stone;
     }
 
     
