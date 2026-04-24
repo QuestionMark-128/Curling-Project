@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using Unity.VisualScripting;
 
 public class CurlingStone : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-
+    private const float MAX_FRICTION = 0.5f;
     private Collider baseCollider;
     private Collider bodyCollider;
     private float desired_acceleration_x;
@@ -15,6 +16,12 @@ public class CurlingStone : MonoBehaviour
     private float magnitude;
     private Vector2 direction;
     private float curl; // positive for right, negative for left
+
+    // data for the game manager
+    private bool stopped; // flag for when the stone has stopped moving
+    private bool team; // true for team 1, false for team 2
+    [SerializeField] private GameManager gameManager;
+
     
     void Start()
     {
@@ -33,8 +40,12 @@ public class CurlingStone : MonoBehaviour
         baseCollider.material = new PhysicsMaterial("BaseMaterial");
         bodyCollider.material = new PhysicsMaterial("BodyMaterial");
         
-        bodyCollider.material.dynamicFriction = 0.3f; // change at some point
-        bodyCollider.material.staticFriction = 0.3f;
+        // should range from 0.5 to 0.02
+
+        baseCollider.material.dynamicFriction = MAX_FRICTION; // change at some point
+        baseCollider.material.staticFriction = MAX_FRICTION;
+
+        baseCollider.material.frictionCombine = PhysicsMaterialCombine.Multiply;
         
         // probably add some base value for the friction here        
 
@@ -53,8 +64,12 @@ public class CurlingStone : MonoBehaviour
             transform.Rotate(0,dx,0);
         }
 
-        GetComponent<Rigidbody>().AddRelativeForce(desired_acceleration_x * 5, 0, desired_acceleration_y * 5);
-        
+        GetComponent<Rigidbody>().AddRelativeForce(desired_acceleration_x * 10, 0, desired_acceleration_y * 10);
+        if (GetComponent<Rigidbody>().linearVelocity.magnitude < 0.01f)
+        {
+            stopped = true;
+            gameManager.OnStoneStopped(this);
+        }
     }
 
     void OnMove(InputValue action) {
