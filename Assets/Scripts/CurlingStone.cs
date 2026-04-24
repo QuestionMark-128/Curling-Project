@@ -71,31 +71,27 @@ public class CurlingStone : MonoBehaviour
         stopped = true; // so that the update logic doesn't do anything unpredicted
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public void AimingPhase() // called every frame during the Aiming game phase
     {
-
-        //float dx = (Mouse.current.position.x.value - Screen.width / 2) / 1500;
-
-        //if (Mathf.Abs(dx) > 0.01f) {
-        
-        //    transform.Rotate(0,dx,0);
-        //}
-
-        
-        if (GetComponent<Rigidbody>().linearVelocity.magnitude < 0.01f && !stopped)
-        {
-            stopped = true;
-            gameManager.OnStoneStopped(this);
-        }
-
         if (Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             Throw(new Vector2(0, 1), 10f);
         }
-
-        // check if stone has stopped colliding with the sheet -> call stone out of bounds method in game manager
     }
+
+    public void SweepingPhase() // called every frame during the Sweeping game phase
+    {
+        if (rb.linearVelocity.magnitude < 0.01f && !stopped)
+        {
+            stopped = true;
+            gameManager.OnStoneStopped(this);
+        }
+    }
+
+    // Update is called once per frame
+    void Update() // There might be things that are always updated?
+    {   }
     
     public void Throw(Vector2 direction, float power)
     {
@@ -131,7 +127,7 @@ public class CurlingStone : MonoBehaviour
             handleMesh.materials = blueHandleMaterials;
         }
     }
-    void OnMove(InputValue action) {
+    void OnMove(InputValue action) { // will get overwritten
         var movement = action.Get<Vector2>();
         desired_acceleration_x = movement.x;
         desired_acceleration_y = movement.y;

@@ -13,8 +13,13 @@ public class CurlingBroom : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public void AimingPhase()
+    {
+        // put it somewhere that can't be seen
+    }
+
+    public void SweepingPhase()
     {
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         Ray ray = stoneCamera.ScreenPointToRay(mousePosition);
@@ -23,10 +28,14 @@ public class CurlingBroom : MonoBehaviour
         {
             transform.position = hit.point + Vector3.up * 0.25f;
         }
-
-
-
+        else
+        {
+            // move it somewhere that can't be seen
+        }
     }
+    // Update is called once per frame
+    void Update()
+    {} // similar to the stone, there might be something that always gets updated
     public void SetStone(CurlingStone s)
     {
         stone = s;
