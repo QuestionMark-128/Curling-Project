@@ -6,6 +6,7 @@ TagManager:
   tags:
   - NearButton
   - FarButton
+  - Sheet
   layers:
   - Default
   - TransparentFX

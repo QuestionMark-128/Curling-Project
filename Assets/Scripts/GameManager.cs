@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
     public void Update()
     {
         string currteam;
+        int adjustedStones = stonesThrown;
         if (stonesThrown < 4)
         {
             currteam = "Red";
@@ -81,9 +82,10 @@ public class GameManager : MonoBehaviour
         else
         {
             currteam = "Blue";
+            adjustedStones -= 4;
         }
         scoredata.text = string.Format("Round: " + roundNumber + ", Current Team: " + currteam + 
-        ", Stones thrown: " + stonesThrown); // stones thrown, round number, current team
+        ", Stones thrown: " + adjustedStones); // stones thrown, round number, current team
         switch(currentPhase)
         {
             case GamePhase.Aiming:
@@ -200,7 +202,11 @@ public class GameManager : MonoBehaviour
         SpawnStone();
     
     }
-
+    public void resetStone()
+    {
+        Destroy(stone);
+        SpawnStone();
+    }
     public CurlingStone getActiveStone()
     {
         return stone;

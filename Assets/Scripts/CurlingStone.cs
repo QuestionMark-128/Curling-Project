@@ -158,8 +158,7 @@ public class CurlingStone : MonoBehaviour
     // Update is called once per frame
     void Update() // There might be things that are always updated?
     {
-        statslbl.text = string.Format("Magnitude: " + magnitude + ", Curl: " + curl + ", Direction (y): " + direction.y +
-        "\nStopped: " + stopped + ", Thrown: " + isThrown + "\nx: " + transform.position.x + ", y: " + transform.position.y);
+        statslbl.text = string.Format($"Magnitude: {magnitude:F2}, Curl: {curl:F2}, Direction (y): {direction.y:F2}\nStopped: {stopped}, Thrown: {isThrown}\nx: {transform.position.x:F2}, y: {transform.position.y:F2}");
 
     }
     
@@ -213,7 +212,14 @@ public class CurlingStone : MonoBehaviour
         }
         
     }
-   
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Sheet") && isThrown)
+        {
+            //gameManager.resetStone();
+        }
+    }
 
     public void SetIceFriction(float f) {
         baseCollider.material.dynamicFriction = f; // should obviously be changed later
