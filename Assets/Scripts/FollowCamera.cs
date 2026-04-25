@@ -22,13 +22,16 @@ public class FollowCamera : MonoBehaviour
 
     public void setTarget(Transform t, int r)
     {
-        if (r < 4)
+        if (r % 2 == 0)
         {
-            offset = new Vector3(2, 1.5f, 0); // 2 behind, one above, and in line
+            offset = new Vector3(-2, 2f, 0); // 2 behind, one above, and in line
+            transform.rotation = Quaternion.Euler(0, 90, 0);
         }
         else 
         {
-           offset = new Vector3(-2, 1.5f, 0); // 2 behind, one above, and in line
+           
+           offset = new Vector3(2, 2f, 0); // 2 behind, one above, and in line
+           transform.rotation = Quaternion.Euler(0, -90, 0);
         }
         target = t;
     }

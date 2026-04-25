@@ -95,8 +95,21 @@ public class CurlingStone : MonoBehaviour
         // x is length, z is width
         //Debug.Log("Stone Aiming");
         // AIMING 
-        direction.x = -1f; 
+
         direction.y = (Mouse.current.position.x.value - Screen.width / 2) / 1500;
+        int r = gameManager.getRound();
+        if (r % 2 == 0)
+        {
+            direction.x = 1f;
+            direction.y *= -1;
+        }
+        else
+        {
+            direction.x = -1f; 
+        }
+        
+        
+
 
         // CURLING
         if (Keyboard.current.qKey.isPressed)
@@ -187,27 +200,31 @@ public class CurlingStone : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("NearButton") && team == Team.Blue)
-        {
-            inScoreZone = true;
-            button_position = other.transform.position;
-
-        }
-        else if (other.CompareTag("FarButton") && team == Team.Red)
+        int round = gameManager.getRound();
+        if (round % 2 == 0 && other.CompareTag("NearButton"))
         {
             inScoreZone = true;
             button_position = other.transform.position;
         }
+        else if (round % 2 != 0 && other.CompareTag("FarButton"))
+        {
+            inScoreZone = true;
+            button_position = other.transform.position;
+        }
+        
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("NearButton") && team == Team.Blue)
+        int round = gameManager.getRound();
+        if (round % 2 == 0 && other.CompareTag("NearButton"))
         {
             inScoreZone = false;
+           //button_position = other.transform.position;
         }
-        else if (other.CompareTag("FarButton") && team == Team.Red)
+        else if (other.CompareTag("FarButton"))
         {
             inScoreZone = false;
+           // button_position = other.transform.position;
         }
     }
 

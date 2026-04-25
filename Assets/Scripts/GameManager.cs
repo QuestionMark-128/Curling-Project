@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
     {
         currentPhase = GamePhase.Aiming;
         stonesThrown = 0;
-        roundNumber = 0;
+        roundNumber = 1;
         spawnPoint = spawnPoint_1;
         SpawnStone();
 
@@ -204,6 +204,10 @@ public class GameManager : MonoBehaviour
     public CurlingStone getActiveStone()
     {
         return stone;
+    }
+    public int getRound()
+    {
+        return roundNumber;
     }
 
     
