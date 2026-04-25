@@ -213,20 +213,7 @@ public class CurlingStone : MonoBehaviour
         }
         
     }
-    private void OnTriggerExit(Collider other)
-    {
-        int round = gameManager.getRound();
-        if (round % 2 == 0 && other.CompareTag("NearButton"))
-        {
-            inScoreZone = false;
-           //button_position = other.transform.position;
-        }
-        else if (other.CompareTag("FarButton"))
-        {
-            inScoreZone = false;
-           // button_position = other.transform.position;
-        }
-    }
+   
 
     public void SetIceFriction(float f) {
         baseCollider.material.dynamicFriction = f; // should obviously be changed later
